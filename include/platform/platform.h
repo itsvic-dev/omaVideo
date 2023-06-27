@@ -10,7 +10,7 @@ struct omavideo_platform_funcs {
   // memory management
   void *(*malloc)(size_t size);
   void (*free)(void *ptr);
-  void (*memset)(void *dest, int value, size_t size);
+  void *(*memset)(void *dest, int value, size_t size);
   int (*strncmp)(const char *str1, const char *str2, size_t n);
 
   // file pointer

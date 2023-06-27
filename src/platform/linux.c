@@ -4,6 +4,8 @@
 #include <platform/platform.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 FILE *l_fp;
@@ -108,6 +110,11 @@ void msleep(unsigned long msecs) { usleep(msecs * 1000); }
 struct omavideo_platform_funcs linux_funcs = {
     .log = *func_log,
     .msleep = *msleep,
+
+    .malloc = *malloc,
+    .free = *free,
+    .memset = *memset,
+    .strncmp = *strncmp,
 
     .fopen = *func_fopen,
     .fclose = *func_fclose,

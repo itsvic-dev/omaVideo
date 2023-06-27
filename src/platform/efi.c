@@ -99,7 +99,7 @@ void *func_malloc(size_t size) {
   return ret;
 }
 
-void func_memset(void *dest, int value, size_t size) {
+void *func_memset(void *dest, int value, size_t size) {
   int i = 0;
   unsigned char *p = dest;
   while (size > 0) {
@@ -107,6 +107,7 @@ void func_memset(void *dest, int value, size_t size) {
     p++;
     size--;
   }
+  return dest;
 }
 
 void func_free(void *ptr) { BS->FreePool(ptr); }
