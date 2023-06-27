@@ -21,9 +21,9 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
     // (g_funcs->log)("format/renderer", "p=%d cmds[p]=%d", p, cmds[p]);
     switch (cmds[p]) {
     case CMD_MOVE: {
-      uint16_t x = *(&cmds[++p]);
+      uint16_t x = *((uint16_t *)&cmds[++p]);
       p++;
-      uint16_t y = *(&cmds[++p]);
+      uint16_t y = *((uint16_t *)&cmds[++p]);
       p++;
       idx = y * g_videoHeader->width + x;
       break;

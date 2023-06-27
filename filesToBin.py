@@ -51,38 +51,24 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
         prev_img_data: bytes = prev_frame.convert("L").tobytes()
     img_data: bytes = img.convert("L").tobytes()
 
-    for x in range(img.size[0]):
-        for y in range(img.size[1]):
-            index = y * img.size[0] + x
-            clr = img_data[index]
-            idx_diff = index - prev_index
+    # what if we just abstract the X and Y away and work
+    # in the decoder's native language instead?
+    # using X and Y only when necessary (MOVE cmd)
+    for index in range(img.size[0] * img.size[1]):
+        bg_clr = 0 if not prev_frame else prev_img_data[index]
+        clr = img_data[index]
+        if clr != bg_clr:
+            # move us to the right position and change the colour
+            # lets not worry about optimizations at this stage
+            x = index % img.size[0]
+            y = (index - x) // img.size[0]
+            commands.append(CMD_MOVE)
+            commands += list(struct.pack("HH", x, y))
+            # change the colour
+            commands.append(CMD_DRAW)
+            commands.append(clr)
 
-            bg_clr = 0
-            if prev_img_data:
-                bg_clr = prev_img_data[index]
-
-            if clr != bg_clr:
-                if 256 > idx_diff > 0:
-                    # increment index
-                    # no command optimization
-                    if idx_diff == 1:
-                        pass
-                    else:
-                        commands.append(CMD_INC_BY)
-                        commands.append(idx_diff)
-                elif idx_diff != 0:
-                    # move to X,Y
-                    commands.append(CMD_MOVE)
-                    commands += list(struct.pack("HH", x, y))
-                # invert opt
-                if clr == (256 + clr - bg_clr) % 256:
-                    commands.append(CMD_INVERT)
-                else:
-                    commands.append(CMD_DRAW)
-                    commands.append(clr)
-                prev_index = index
-
-    # TODO: optimization with 0x13 command
+    # TODO: optimization with FILL_DATA cmd
     # though i don't think i'll need it
     return commands
 
