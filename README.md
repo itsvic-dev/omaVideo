@@ -2,7 +2,7 @@
 
 the most unconventional way to play back videos
 
-**NOTE:** this wasn't designed to be used by users if you can't tell from the jankiness of this thing. _if you have no idea how to code, you prob won't know how to use this and i won't help you._
+**NOTE:** this wasn't designed with user friendliness in mind if you can't tell from the jankiness of this thing. _if you have no idea how to code, you prob won't know how to use this and i won't help you._
 
 ## how to use
 
