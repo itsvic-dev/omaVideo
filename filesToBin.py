@@ -102,6 +102,6 @@ def imgs_to_video(path: str, frame_count: int, width: int, height: int, fps: int
 
 if __name__ == "__main__":
     BAD_APPLE_FRAMES = 6572
-    video = imgs_to_video("frames", 5 * 30, 480, 360, 30)
+    video = imgs_to_video("frames", BAD_APPLE_FRAMES, 480, 360, 30)
     with open("test.bin", "wb+") as file:
         file.write(video)
