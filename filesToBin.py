@@ -29,7 +29,6 @@ CMD_FILL_DATA = 0x13
 # frames* - n-sequence of frame objects
 
 # frame object:
-# "OMFR" - magic header
 # commands_length, 32-bit word
 # commands* - sequence of frame commands with a total size of commands_length
 
@@ -59,14 +58,27 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
         clr = img_data[index]
         if clr != bg_clr:
             # move us to the right position and change the colour
-            # lets not worry about optimizations at this stage
-            x = index % img.size[0]
-            y = (index - x) // img.size[0]
-            commands.append(CMD_MOVE)
-            commands += list(struct.pack("HH", x, y))
+            # size, math opt: use INC_BY wherever possible
+            if 256 > index - prev_index > 0:
+                if index - prev_index == 1:
+                    # size opt: use INC instead
+                    commands.append(CMD_INC)
+                else:
+                    commands.append(CMD_INC_BY)
+                    commands.append(index - prev_index)
+            elif index - prev_index != 0:
+                x = index % img.size[0]
+                y = (index - x) // img.size[0]
+                commands.append(CMD_MOVE)
+                commands += list(struct.pack("HH", x, y))
             # change the colour
-            commands.append(CMD_DRAW)
-            commands.append(clr)
+            # size opt: use INVERT if possible
+            if bg_clr == 0xFF - clr:
+                commands.append(CMD_INVERT)
+            else:
+                commands.append(CMD_DRAW)
+                commands.append(clr)
+            prev_index = index + 1  # because the draw operation shifted the index
 
     # TODO: optimization with FILL_DATA cmd
     # though i don't think i'll need it
@@ -83,7 +95,7 @@ def imgs_to_video(path: str, frame_count: int, width: int, height: int, fps: int
     print(f"[info] creating video object...")
     video_obj = b"OMAVIDEO" + struct.pack("HHBH", width, height, fps, frame_count)
     for frame in frames:
-        video_obj += b"OMFR" + struct.pack("I", len(frame)) + bytes(frame)
+        video_obj += struct.pack("I", len(frame)) + bytes(frame)
 
     return video_obj
 

@@ -20,13 +20,6 @@ struct omavideo_video_header *omavideo_format_read_header() {
 }
 
 struct omavideo_video_frame omavideo_format_read_frame() {
-  uint8_t *header = (g_funcs->fread)(4);
-  if (strncmp((char *)header, "OMFR", 4) != 0) {
-    (g_funcs->log)("format/reader", "frame magic doesn't match: %x %x %x %x",
-                   header[0], header[1], header[2], header[3]);
-    struct omavideo_video_frame crash_frame = {10, NULL};
-    return crash_frame;
-  }
   // read commands count
   uint8_t *count_raw = (g_funcs->fread)(4);
   uint32_t count = *((uint32_t *)count_raw);
