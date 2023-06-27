@@ -9,6 +9,7 @@ endif()
 set(SOURCES
     src/core/core.c
     src/format/reader.c
+    src/format/renderer.c
     src/platform/${PLATFORM}.c
 )
 

@@ -10,6 +10,15 @@
 # fill canvas with image data - 0x13 [color*, W*H sequence of 8-bit words]
 ## note: 0x10 and 0x11 commands both increment the index
 
+CMD_MOVE = 0x01
+CMD_INC_BY = 0x02
+CMD_INC = 0x03
+
+CMD_DRAW = 0x10
+CMD_INVERT = 0x11
+CMD_FILL = 0x12
+CMD_FILL_DATA = 0x13
+
 
 # video object:
 # "OMAVIDEO" - magic header
@@ -20,6 +29,7 @@
 # frames* - n-sequence of frame objects
 
 # frame object:
+# "OMFR" - magic header
 # commands_length, 32-bit word
 # commands* - sequence of frame commands with a total size of commands_length
 
@@ -32,7 +42,7 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
     commands = []
     if not prev_frame:
         # fill with black
-        commands.append(0x12)
+        commands.append(CMD_FILL)
         commands.append(0)
 
     prev_index = 0
@@ -41,8 +51,8 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
         prev_img_data: bytes = prev_frame.convert("L").tobytes()
     img_data: bytes = img.convert("L").tobytes()
 
-    for y in range(img.size[1]):
-        for x in range(img.size[0]):
+    for x in range(img.size[0]):
+        for y in range(img.size[1]):
             index = y * img.size[0] + x
             clr = img_data[index]
             idx_diff = index - prev_index
@@ -54,22 +64,21 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
             if clr != bg_clr:
                 if 256 > idx_diff > 0:
                     # increment index
-                    # optimization with ~~0x3 command~~ no command
+                    # no command optimization
                     if idx_diff == 1:
-                        # commands.append(0x3)
                         pass
                     else:
-                        commands.append(0x2)
+                        commands.append(CMD_INC_BY)
                         commands.append(idx_diff)
                 elif idx_diff != 0:
                     # move to X,Y
-                    commands.append(0x1)
+                    commands.append(CMD_MOVE)
                     commands += list(struct.pack("HH", x, y))
                 # invert opt
                 if clr == (256 + clr - bg_clr) % 256:
-                    commands.append(0x11)
+                    commands.append(CMD_INVERT)
                 else:
-                    commands.append(0x10)
+                    commands.append(CMD_DRAW)
                     commands.append(clr)
                 prev_index = index
 
@@ -88,7 +97,7 @@ def imgs_to_video(path: str, frame_count: int, width: int, height: int, fps: int
     print(f"[info] creating video object...")
     video_obj = b"OMAVIDEO" + struct.pack("HHBH", width, height, fps, frame_count)
     for frame in frames:
-        video_obj += struct.pack("I", len(frame)) + bytes(frame)
+        video_obj += b"OMFR" + struct.pack("I", len(frame)) + bytes(frame)
 
     return video_obj
 

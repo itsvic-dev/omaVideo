@@ -5,6 +5,7 @@
 
 struct omavideo_platform_funcs {
   void (*log)(char *section, char *format, ...);
+  void (*msleep)(unsigned long msecs);
 
   // file pointer
   bool (*fopen)(void);

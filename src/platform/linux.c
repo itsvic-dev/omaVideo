@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 FILE *l_fp;
 
@@ -37,6 +38,10 @@ uint8_t *func_fread(size_t count) {
 
 Display *l_display;
 Window l_window;
+Visual *l_visual;
+int l_width;
+int l_height;
+int l_s;
 
 bool func_display_open(int width, int height) {
   l_display = XOpenDisplay(NULL);
@@ -45,10 +50,14 @@ bool func_display_open(int width, int height) {
     return false;
   }
   int s = DefaultScreen(l_display);
+  l_s = s;
+  l_width = width;
+  l_height = height;
 
   l_window = XCreateSimpleWindow(l_display, RootWindow(l_display, s), 0, 0,
-                                 width, height, 1, BlackPixel(l_display, s),
-                                 WhitePixel(l_display, s));
+                                 width, height, 0, 0, WhitePixel(l_display, s));
+
+  l_visual = DefaultVisual(l_display, s);
 
   XSelectInput(l_display, l_window, ExposureMask);
   Atom WM_NAME = XInternAtom(l_display, "WM_NAME", false);
@@ -72,8 +81,34 @@ bool func_display_close() {
   return true;
 }
 
+void func_display_frame(uint8_t *framebuffer) {
+  // we have to convert to a format Xlib will be happy with
+
+  char *converted_fb = malloc(l_width * l_height * 4);
+
+  for (int y = 0; y < l_height; y++) {
+    for (int x = 0; x < l_width; x++) {
+      int idx = y * l_width + x;
+      converted_fb[idx * 4] = framebuffer[idx];
+      converted_fb[idx * 4 + 1] = framebuffer[idx];
+      converted_fb[idx * 4 + 2] = framebuffer[idx];
+    }
+  }
+
+  XImage *image = XCreateImage(l_display, l_visual, 24, ZPixmap, 0,
+                               converted_fb, l_width, l_height, 32, 0);
+  XPutImage(l_display, l_window, DefaultGC(l_display, l_s), image, 0, 0, 0, 0,
+            l_width, l_height);
+  // undefined for some reason?? thats not good
+  // XDestroyImage(image);
+  free(converted_fb);
+}
+
+void msleep(unsigned long msecs) { usleep(msecs * 1000); }
+
 struct omavideo_platform_funcs linux_funcs = {
     .log = *func_log,
+    .msleep = *msleep,
 
     .fopen = *func_fopen,
     .fclose = *func_fclose,
@@ -81,6 +116,7 @@ struct omavideo_platform_funcs linux_funcs = {
 
     .display_open = *func_display_open,
     .display_close = *func_display_close,
+    .display_frame = *func_display_frame,
 };
 
 int main() {
