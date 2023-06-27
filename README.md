@@ -20,5 +20,5 @@ the most unconventional way to play back videos
 
 ### EFI frontend
 
-- runs slower than optimal. prob needs tweaks in the msleep or get_ms_time functions
+- runs slow
 - doesn't have proper formatting support in the log function because lol no libc also fuck wchar

@@ -104,4 +104,4 @@ if __name__ == "__main__":
     """
     BAD_APPLE_FRAMES = 6572
     with open("test.bin", "wb+") as file:
-        imgs_to_video(file, "frames", 5 * 30, 480, 360, 30)
+        imgs_to_video(file, "frames", BAD_APPLE_FRAMES, 480, 360, 30)

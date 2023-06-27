@@ -164,7 +164,13 @@ void func_display_frame(uint8_t *framebuffer) {
   }
 }
 
-void msleep(unsigned long msecs) { BS->Stall(msecs * 1000); }
+void msleep(unsigned long msecs) {
+  if (msecs > 1000)
+    return; // dont stall for more than 1s
+  if (msecs <= 0)
+    return; // dont stall for <=0s
+  BS->Stall(msecs * 1000);
+}
 
 long long get_ms_time() {
   EFI_TIME Time;
