@@ -4,7 +4,6 @@
 #include <platform/platform.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 FILE *l_fp;

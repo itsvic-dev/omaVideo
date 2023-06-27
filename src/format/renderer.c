@@ -1,13 +1,12 @@
 #include <core/core.h>
 #include <format/renderer.h>
-#include <stdlib.h>
-#include <string.h>
 
 uint8_t *g_framebuffer;
 
 void omavideo_renderer_init() {
   (g_funcs->log)("format/renderer", "initializing");
-  g_framebuffer = malloc(g_videoHeader->width * g_videoHeader->height);
+  g_framebuffer =
+      (g_funcs->malloc)(g_videoHeader->width * g_videoHeader->height);
 }
 
 void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
@@ -49,17 +48,17 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
       break;
     }
     case CMD_FILL: {
-      memset(g_framebuffer, cmds[++p],
-             g_videoHeader->width * g_videoHeader->height);
+      (g_funcs->memset)(g_framebuffer, cmds[++p],
+                        g_videoHeader->width * g_videoHeader->height);
       break;
     }
-    case CMD_FILL_DATA: {
-      // technically not used, but we support it anyway
+    /* case CMD_FILL_DATA: {
+      // not used and not supported for now
       memcpy(g_framebuffer, &cmds[++p],
              g_videoHeader->width * g_videoHeader->height);
       p += g_videoHeader->width * g_videoHeader->height;
       break;
-    }
+    } */
     default:
       (g_funcs->log)("format/renderer", "unknown command %d at p=%d", cmds[p],
                      p);
@@ -68,5 +67,5 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
   }
 
   // free the frame data once we're done with it to not pollute memory
-  free(frame->commands);
+  (g_funcs->free)(frame->commands);
 }
