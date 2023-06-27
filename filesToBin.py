@@ -85,23 +85,23 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
     return commands
 
 
-def imgs_to_video(path: str, frame_count: int, width: int, height: int, fps: int):
+def imgs_to_video(fp, path: str, frame_count: int, width: int, height: int, fps: int):
     prev_frame = None
-    frames = []
+    fp.write(b"OMAVIDEO" + struct.pack("HHBH", width, height, fps, frame_count))
     for i in tqdm.tqdm(range(frame_count), total=frame_count, desc="processing frames"):
         frame = Image.open(f"{path}/{(i + 1):04d}.png")
-        frames.append(img_to_frame(prev_frame, frame))
+        frame_data = img_to_frame(prev_frame, frame)
+        fp.write(struct.pack("I", len(frame_data)) + bytes(frame_data))
         prev_frame = frame
-    print(f"[info] creating video object...")
-    video_obj = b"OMAVIDEO" + struct.pack("HHBH", width, height, fps, frame_count)
-    for frame in frames:
-        video_obj += struct.pack("I", len(frame)) + bytes(frame)
-
-    return video_obj
 
 
 if __name__ == "__main__":
+    """
+    settings for bad apple:
+    frames = 6572
+    res = 480, 360
+    fps = 30
+    """
     BAD_APPLE_FRAMES = 6572
-    video = imgs_to_video("frames", BAD_APPLE_FRAMES, 480, 360, 30)
     with open("test.bin", "wb+") as file:
-        file.write(video)
+        imgs_to_video(file, "frames", 5 * 30, 480, 360, 30)

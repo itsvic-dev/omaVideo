@@ -164,8 +164,19 @@ void func_display_frame(uint8_t *framebuffer) {
   }
 }
 
+void msleep(unsigned long msecs) { BS->Stall(msecs * 1000); }
+
+long long get_ms_time() {
+  EFI_TIME Time;
+  EFI_TIME_CAPABILITIES TimeCapabilities;
+  ST->RuntimeServices->GetTime(&Time, &TimeCapabilities);
+  return Time.Second * 1000 + (Time.Nanosecond / 1000 / 1000);
+}
+
 struct omavideo_platform_funcs funcs = {
     .log = *func_log,
+    .msleep = *msleep,
+    .get_ms_time = *get_ms_time,
 
     .malloc = *func_malloc,
     .free = *func_free,

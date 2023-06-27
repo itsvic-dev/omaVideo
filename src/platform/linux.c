@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 FILE *l_fp;
@@ -107,9 +108,16 @@ void func_display_frame(uint8_t *framebuffer) {
 
 void msleep(unsigned long msecs) { usleep(msecs * 1000); }
 
+long long get_ms_time() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (((long long)tv.tv_sec) * 1000) + (tv.tv_usec / 1000);
+}
+
 struct omavideo_platform_funcs linux_funcs = {
     .log = *func_log,
     .msleep = *msleep,
+    .get_ms_time = *get_ms_time,
 
     .malloc = *malloc,
     .free = *free,

@@ -32,12 +32,14 @@ int omavideo_init(struct omavideo_platform_funcs *funcs) {
 
   // let's just draw without worrying about sleep for now
   for (int frame_idx = 0; frame_idx < g_videoHeader->frame_count; frame_idx++) {
+    long long frame_start = (g_funcs->get_ms_time)();
     // (g_funcs->log)("core", "reading frame %d", frame_idx);
     struct omavideo_video_frame frame = omavideo_format_read_frame();
     // (g_funcs->log)("core", "rendering frame %d", frame_idx);
     omavideo_renderer_render_frame(&frame);
     (g_funcs->display_frame)(g_framebuffer);
-    // (g_funcs->msleep)(1000 / g_videoHeader->fps);
+    long long frame_end = (g_funcs->get_ms_time)();
+    (g_funcs->msleep)(1000 / g_videoHeader->fps - (frame_end - frame_start));
   }
 
   // clean up
