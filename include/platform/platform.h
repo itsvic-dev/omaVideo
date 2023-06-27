@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 struct omavideo_platform_funcs {
-  void (*log)(char *section, char *log);
+  void (*log)(char *section, char *format, ...);
 
   // file pointer
   bool (*fopen)(void);

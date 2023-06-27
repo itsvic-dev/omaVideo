@@ -1,8 +1,10 @@
 #include <core/core.h>
+#include <format/reader.h>
 #include <stdlib.h>
 #include <string.h>
 
 struct omavideo_platform_funcs *g_funcs;
+struct omavideo_video_header *g_videoHeader;
 
 int omavideo_init(struct omavideo_platform_funcs *funcs) {
   g_funcs = funcs;
@@ -14,16 +16,15 @@ int omavideo_init(struct omavideo_platform_funcs *funcs) {
     return 1;
   }
 
-  // test shit
-  (g_funcs->log)("core", "verifying magic header");
-  uint8_t *magic = (g_funcs->fread)(8);
-  if (strncmp((char *)magic, "OMAVIDEO", 8) == 0) {
-    (g_funcs->log)("core", "magic header matches wow!!");
-  }
-  free(magic);
+  // read video header
+  g_videoHeader = omavideo_format_read_header();
+  (g_funcs->log)("core", "loaded %dx%d @ %d FPS video", g_videoHeader->width,
+                 g_videoHeader->height, g_videoHeader->fps);
 
+  // clean up
+  (g_funcs->log)("core", "we're done, cleaning up");
+  free(g_videoHeader);
   (g_funcs->fclose)();
 
-  (g_funcs->log)("core", "TODO: do shit");
   return 0;
 }

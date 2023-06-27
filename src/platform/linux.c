@@ -1,11 +1,19 @@
 #include <core/core.h>
 #include <platform/platform.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 FILE *l_fp;
 
-void func_log(char *section, char *log) { printf("[%s] %s\n", section, log); }
+void func_log(char *section, char *format, ...) {
+  va_list list;
+  va_start(list, format);
+  printf("[%s] ", section);
+  vprintf(format, list);
+  printf("\n");
+  va_end(list);
+}
 
 bool func_fopen() {
   l_fp = fopen("video.bin", "r");
