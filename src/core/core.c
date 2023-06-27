@@ -21,8 +21,13 @@ int omavideo_init(struct omavideo_platform_funcs *funcs) {
   (g_funcs->log)("core", "loaded %dx%d @ %d FPS video", g_videoHeader->width,
                  g_videoHeader->height, g_videoHeader->fps);
 
+  // open display
+  (g_funcs->log)("core", "opening display");
+  (g_funcs->display_open)(g_videoHeader->width, g_videoHeader->height);
+
   // clean up
   (g_funcs->log)("core", "we're done, cleaning up");
+  (g_funcs->display_close)();
   free(g_videoHeader);
   (g_funcs->fclose)();
 

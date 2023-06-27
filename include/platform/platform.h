@@ -11,8 +11,8 @@ struct omavideo_platform_funcs {
   uint8_t *(*fread)(size_t count);
   bool (*fclose)(void);
 
-  // framebuffer
-  void (*open_fb)(void);
-  void (*render_frame)(char *frame_data);
-  void (*close_fb)(void);
+  // display
+  bool (*display_open)(int width, int height);
+  void (*display_frame)(uint8_t *frame_data);
+  bool (*display_close)(void);
 };

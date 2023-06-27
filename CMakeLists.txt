@@ -14,3 +14,9 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
+
+if ("${PLATFORM}" STREQUAL "linux")
+    find_package(X11 REQUIRED)
+    target_include_directories(${PROJECT_NAME} PUBLIC ${X11_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
+endif()
