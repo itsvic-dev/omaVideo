@@ -12,9 +12,11 @@ the most unconventional way to play back videos
 4. compile
    - for the Linux frontend, use `cmake .. -DPLATFORM=linux`. this requires Xlib
    - for the EFI frontend, use `cmake .. -DPLATFORM=efi`. make sure you have ran `git submodule update --init` at least once
+   - for the Linux kernel frontend, run `mkdir build; make` in the root directory
 5. run
    - the Linux frontend will produce a `omaVideo` executable which looks for `video.bin` in the PWD
    - the EFI frontend will produce a `omaVideo.efi` executable which looks for `VIDEO.BIN` in the filesystem root, and a `fat.img` containing `test.bin` from the root as `VIDEO.BIN` along with `omaVideo.efi` as `BOOTX64.EFI`
+   - the Linux kernel frontend will produce a `omaVideo.ko` module
 
 ## known issues
 
