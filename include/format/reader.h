@@ -1,6 +1,5 @@
 #pragma once
-#include <stdbool.h>
-#include <stdint.h>
+#include <core/types.h>
 
 struct omavideo_video_header {
   char magic[8]; // "OMAVIDEO"

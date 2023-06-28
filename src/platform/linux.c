@@ -1,6 +1,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <core/core.h>
+#include <core/types.h>
 #include <platform/platform.h>
 #include <stdarg.h>
 #include <stdio.h>

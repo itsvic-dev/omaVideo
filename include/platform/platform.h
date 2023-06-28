@@ -1,7 +1,5 @@
 #pragma once
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <core/types.h>
 
 struct omavideo_platform_funcs {
   void (*log)(char *section, char *format, ...);
