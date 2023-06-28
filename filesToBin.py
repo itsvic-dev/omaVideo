@@ -9,6 +9,7 @@
 # fill canvas with single color - 0x12 [color, 8-bit word]
 # fill canvas with image data - 0x13 [color*, W*H sequence of 8-bit words]
 ## note: 0x10 and 0x11 commands both increment the index
+# repeat previous command of size S N times - 0x30 [S, 8-bit word] [N, 8-bit word]
 
 CMD_MOVE = 0x01
 CMD_INC_BY = 0x02
@@ -18,6 +19,8 @@ CMD_DRAW = 0x10
 CMD_INVERT = 0x11
 CMD_FILL = 0x12
 CMD_FILL_DATA = 0x13
+
+CMD_REPEAT = 0x30
 
 
 # video object:
@@ -49,6 +52,19 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
     if prev_frame:
         prev_img_data: bytes = prev_frame.convert("L").tobytes()
     img_data: bytes = img.convert("L").tobytes()
+
+    prev_command = (0xFF, 0)
+    repeat_counter = 0
+
+    def add_command(command: int, *args: list[int]):
+        if prev_command[0] == command:
+            repeat_counter += 1
+        elif 256 > repeat_counter > 4 and prev_command[0] != command:
+            # replace the past commands with one command and one repeat
+            pass
+        elif prev_command[0] != command:
+            repeat_counter = 0
+        prev_command[0] = (command, len(args))
 
     # what if we just abstract the X and Y away and work
     # in the decoder's native language instead?
