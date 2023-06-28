@@ -56,11 +56,16 @@ void *func_malloc(u64 size) { return kzalloc(size, GFP_KERNEL); }
 
 void func_free(void *ptr) { return kfree(ptr); }
 
+int func_strncmp(const char *str1, const char *str2, u64 n) {
+  return strncmp(str1, str2, n);
+}
+
 struct omavideo_platform_funcs funcs = {
     .log = *func_log,
 
     .malloc = *func_malloc,
     .free = *func_free,
+    .strncmp = *func_strncmp,
 
     .fopen = *func_fopen,
     .fread = *func_fread,
