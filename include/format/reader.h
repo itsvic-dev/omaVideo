@@ -9,11 +9,11 @@ struct omavideo_video_header {
   u16 frame_count;
 };
 
-struct omavideo_video_header *omavideo_format_read_header();
+struct omavideo_video_header *omavideo_format_read_header(void);
 
 struct omavideo_video_frame {
   u32 commands_count;
   u8 *commands;
 };
 
-struct omavideo_video_frame omavideo_format_read_frame();
+struct omavideo_video_frame omavideo_format_read_frame(void);

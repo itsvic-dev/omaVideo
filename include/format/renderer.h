@@ -12,5 +12,5 @@
 
 extern u8 *g_framebuffer;
 
-extern void omavideo_renderer_init();
+extern void omavideo_renderer_init(void);
 extern void omavideo_renderer_render_frame(struct omavideo_video_frame *frame);

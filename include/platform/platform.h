@@ -4,7 +4,7 @@
 struct omavideo_platform_funcs {
   void (*log)(char *section, char *format, ...);
   void (*msleep)(unsigned long msecs);
-  long long (*get_ms_time)();
+  long long (*get_ms_time)(void);
 
   // memory management
   void *(*malloc)(u64 size);
