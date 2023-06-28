@@ -64,13 +64,13 @@ bool func_fopen() {
       Volume->Open(Volume, &FileHandle, L"VIDEO.BIN", EFI_FILE_MODE_READ,
                    EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
   if (EFI_ERROR(Status))
-    return false;
-  return true;
+    return FALSE;
+  return TRUE;
 }
 
 bool func_fclose() {
   FileHandle->Close(FileHandle);
-  return true;
+  return TRUE;
 }
 
 uint8_t *func_fread(size_t count) {
@@ -126,7 +126,7 @@ bool func_display_open(int width, int height) {
   EFI_STATUS Status = BS->LocateProtocol(&gopGuid, NULL, (void **)&gop);
   if (EFI_ERROR(Status)) {
     Print(L"[EFI] Failed to locate GOP\r\n");
-    return false;
+    return FALSE;
   }
 
   // get the current mode
@@ -139,15 +139,15 @@ bool func_display_open(int width, int height) {
   }
   if (EFI_ERROR(Status)) {
     Print(L"[EFI] Unable to get native mode\r\n");
-    return false;
+    return FALSE;
   }
 
   // we're gonna be using the native mode for rendering
   // so we're done i think!
-  return true;
+  return TRUE;
 }
 
-bool func_display_close() { return true; }
+bool func_display_close() { return TRUE; }
 
 uint32_t funny_pixel_shit(uint8_t pixel) {
   return 0xFF000000 + (pixel << 16) + (pixel << 8) + pixel;

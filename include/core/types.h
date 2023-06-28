@@ -8,8 +8,8 @@ typedef unsigned long long u64;
 typedef long long i64;
 
 typedef _Bool bool;
-#define true 1
-#define false 0
+#define TRUE 1
+#define FALSE 0
 
 #ifndef NULL
 #define NULL ((void *)0)

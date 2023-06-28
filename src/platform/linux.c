@@ -23,14 +23,14 @@ void func_log(char *section, char *format, ...) {
 
 bool func_fopen() {
   l_fp = fopen("video.bin", "r");
-  return l_fp == 0 ? false : true;
+  return l_fp == 0 ? FALSE : TRUE;
 }
 
 bool func_fclose() {
   if (l_fp == 0)
-    return false;
+    return FALSE;
   fclose(l_fp);
-  return true;
+  return TRUE;
 }
 
 u8 *func_fread(u64 count) {
@@ -50,7 +50,7 @@ bool func_display_open(int width, int height) {
   l_display = XOpenDisplay(NULL);
   if (l_display == NULL) {
     printf("[linux] failed to open X display\n");
-    return false;
+    return FALSE;
   }
   int s = DefaultScreen(l_display);
   l_s = s;
@@ -63,8 +63,8 @@ bool func_display_open(int width, int height) {
   l_visual = DefaultVisual(l_display, s);
 
   XSelectInput(l_display, l_window, ExposureMask);
-  Atom WM_NAME = XInternAtom(l_display, "WM_NAME", false);
-  Atom STRING = XInternAtom(l_display, "STRING", false);
+  Atom WM_NAME = XInternAtom(l_display, "WM_NAME", FALSE);
+  Atom STRING = XInternAtom(l_display, "STRING", FALSE);
   XChangeProperty(l_display, l_window, WM_NAME, STRING, 8, PropModeReplace,
                   (unsigned char *)"omaVideo\0", 9);
   XMapWindow(l_display, l_window);
@@ -72,16 +72,16 @@ bool func_display_open(int width, int height) {
   XEvent event;
   XNextEvent(l_display, &event);
 
-  return true;
+  return TRUE;
 }
 
 bool func_display_close() {
   if (l_display == NULL) {
-    return false;
+    return FALSE;
   }
 
   XCloseDisplay(l_display);
-  return true;
+  return TRUE;
 }
 
 void func_display_frame(u8 *framebuffer) {
