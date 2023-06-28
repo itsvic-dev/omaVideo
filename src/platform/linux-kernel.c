@@ -24,6 +24,9 @@ static int omavideo_module_init(void) {
 
   atomic_notifier_chain_register(&panic_notifier_list, &omavideo_panic_block);
   pr_debug("added panic handler\n");
+
+  pr_debug("panic time :D\n");
+  panic("i got bored lol");
   return 0;
 }
 
