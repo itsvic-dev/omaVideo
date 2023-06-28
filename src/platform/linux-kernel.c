@@ -1,4 +1,9 @@
+#include <asm/segment.h>
+#include <asm/uaccess.h>
 #include <core/core.h>
+#include <linux/buffer_head.h>
+#include <linux/fcntl.h>
+#include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -20,8 +25,46 @@ void func_log(char *section, char *format, ...) {
   printk(KERN_INFO "omaVideo: [%s] %s\n", section, buffer);
 }
 
+struct file *filp = NULL;
+
+bool func_fopen(void) {
+  filp = filp_open("/tmp/video.bin", O_RDONLY, 0);
+  if (IS_ERR(filp)) {
+    filp = NULL;
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+bool func_fclose(void) {
+  if (filp == NULL)
+    return FALSE;
+  filp_close(filp, NULL);
+  return TRUE;
+}
+
+u8 *func_fread(u64 count) {
+  u8 *ret = kzalloc(count, GFP_KERNEL);
+  loff_t pos = filp->f_pos;
+  kernel_read(filp, ret, count, &pos);
+  filp->f_pos = pos;
+  return ret;
+}
+
+void *func_malloc(u64 size) { return kzalloc(size, GFP_KERNEL); }
+
+void func_free(void *ptr) { return kfree(ptr); }
+
 struct omavideo_platform_funcs funcs = {
     .log = *func_log,
+
+    .malloc = *func_malloc,
+    .free = *func_free,
+
+    .fopen = *func_fopen,
+    .fread = *func_fread,
+    .fclose = *func_fclose,
 };
 
 static int omavideo_panic_handler(struct notifier_block *self, unsigned long i,
