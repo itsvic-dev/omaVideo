@@ -7,18 +7,18 @@ struct omavideo_platform_funcs {
   long long (*get_ms_time)();
 
   // memory management
-  void *(*malloc)(size_t size);
+  void *(*malloc)(u64 size);
   void (*free)(void *ptr);
-  void *(*memset)(void *dest, int value, size_t size);
-  int (*strncmp)(const char *str1, const char *str2, size_t n);
+  void *(*memset)(void *dest, int value, u64 size);
+  int (*strncmp)(const char *str1, const char *str2, u64 n);
 
   // file pointer
   bool (*fopen)(void);
-  uint8_t *(*fread)(size_t count);
+  u8 *(*fread)(u64 count);
   bool (*fclose)(void);
 
   // display
   bool (*display_open)(int width, int height);
-  void (*display_frame)(uint8_t *frame_data);
+  void (*display_frame)(u8 *frame_data);
   bool (*display_close)(void);
 };

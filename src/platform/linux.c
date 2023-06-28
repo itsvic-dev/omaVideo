@@ -33,8 +33,8 @@ bool func_fclose() {
   return true;
 }
 
-uint8_t *func_fread(size_t count) {
-  uint8_t *ret = malloc(count);
+u8 *func_fread(u64 count) {
+  u8 *ret = malloc(count);
   fread(ret, 1, count, l_fp);
   return ret;
 }
@@ -84,7 +84,7 @@ bool func_display_close() {
   return true;
 }
 
-void func_display_frame(uint8_t *framebuffer) {
+void func_display_frame(u8 *framebuffer) {
   // we have to convert to a format Xlib will be happy with
 
   char *converted_fb = malloc(l_width * l_height * 4);
@@ -115,15 +115,25 @@ long long get_ms_time() {
   return (((long long)tv.tv_sec) * 1000) + (tv.tv_usec / 1000);
 }
 
+void *func_malloc(u64 size) { return malloc(size); }
+
+void *func_memset(void *ptr, int value, u64 size) {
+  return memset(ptr, value, size);
+}
+
+int func_strncmp(const char *str1, const char *str2, u64 size) {
+  return strncmp(str1, str2, size);
+}
+
 struct omavideo_platform_funcs linux_funcs = {
     .log = *func_log,
     .msleep = *msleep,
     .get_ms_time = *get_ms_time,
 
-    .malloc = *malloc,
+    .malloc = *func_malloc,
     .free = *free,
-    .memset = *memset,
-    .strncmp = *strncmp,
+    .memset = *func_memset,
+    .strncmp = *func_strncmp,
 
     .fopen = *func_fopen,
     .fclose = *func_fclose,

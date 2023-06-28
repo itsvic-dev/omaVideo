@@ -1,7 +1,7 @@
 #include <core/core.h>
 #include <format/renderer.h>
 
-uint8_t *g_framebuffer;
+u8 *g_framebuffer;
 
 void omavideo_renderer_init() {
   (g_funcs->log)("format/renderer", "initializing");
@@ -12,7 +12,7 @@ void omavideo_renderer_init() {
 void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
   int p = 0;
   int idx = 0;
-  uint8_t *cmds = frame->commands;
+  u8 *cmds = frame->commands;
   if (cmds == NULL)
     return;
 
@@ -20,9 +20,9 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
     // (g_funcs->log)("format/renderer", "p=%d cmds[p]=%d", p, cmds[p]);
     switch (cmds[p]) {
     case CMD_MOVE: {
-      uint16_t x = *((uint16_t *)&cmds[++p]);
+      u16 x = *((u16 *)&cmds[++p]);
       p++;
-      uint16_t y = *((uint16_t *)&cmds[++p]);
+      u16 y = *((u16 *)&cmds[++p]);
       p++;
       idx = y * g_videoHeader->width + x;
       break;

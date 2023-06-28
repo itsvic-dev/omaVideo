@@ -1,15 +1,11 @@
 #pragma once
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
 
-#ifdef __EFI__
-// grr i hate efi
-typedef unsigned long long size_t;
-#else
-typedef unsigned long size_t;
-#endif
+typedef unsigned long long u64;
+typedef long long i64;
 
 typedef _Bool bool;
 #define true 1

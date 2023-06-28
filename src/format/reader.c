@@ -19,11 +19,11 @@ struct omavideo_video_header *omavideo_format_read_header() {
 
 struct omavideo_video_frame omavideo_format_read_frame() {
   // read commands count
-  uint8_t *count_raw = (g_funcs->fread)(4);
-  uint32_t count = *((uint32_t *)count_raw);
+  u8 *count_raw = (g_funcs->fread)(4);
+  u32 count = *((u32 *)count_raw);
   (g_funcs->free)(count_raw);
 
-  uint8_t *data;
+  u8 *data;
   if (count == 0) {
     data = NULL;
   } else {

@@ -10,7 +10,7 @@
 #define CMD_FILL 0x12
 #define CMD_FILL_DATA 0x13
 
-extern uint8_t *g_framebuffer;
+extern u8 *g_framebuffer;
 
 extern void omavideo_renderer_init();
 extern void omavideo_renderer_render_frame(struct omavideo_video_frame *frame);
