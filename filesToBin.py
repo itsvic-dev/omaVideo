@@ -40,31 +40,58 @@ import struct
 import tqdm
 
 
+class CmdRepeatData:
+    def __init__(self, commands: list[int]):
+        self._commands: list[int] = commands
+        self.cmd: int = -1
+        self.cmd_args: list[int] = []
+        self.count: int = 0
+        self.have_replaced: bool = False
+
+    def add_command(self, cmd: int, *args: list[int]):
+        if self.cmd == cmd and self.cmd_args == args:
+            self.count += 1
+            if self.count >= 256:
+                self.count = 1
+                self.have_replaced = False
+                self._commands.append(cmd)
+                for arg in args:
+                    self._commands.append(arg)
+            if self.have_replaced:
+                # increment count
+                self._commands[-1] = self.count - 1
+            else:
+                if self.count >= 2:
+                    self._commands.append(CMD_REPEAT)
+                    self._commands.append(len(args) + 1)
+                    self._commands.append(self.count - 1)
+                    self.have_replaced = True
+        else:
+            self.cmd = cmd
+            self.cmd_args = args
+            self.count = 1
+            self.have_replaced = False
+            self._commands.append(cmd)
+            for arg in args:
+                self._commands.append(arg)
+
+
 def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
     commands = []
+
+    repeat_data = CmdRepeatData(commands)
+    add_command = repeat_data.add_command  # helper shortcut
+
     if not prev_frame:
         # fill with black
-        commands.append(CMD_FILL)
-        commands.append(0)
+        # TODO: optimize by getting the most prelevant colour in the frame
+        add_command(CMD_FILL, 0)
 
     prev_index = 0
     prev_img_data = None
     if prev_frame:
         prev_img_data: bytes = prev_frame.convert("L").tobytes()
     img_data: bytes = img.convert("L").tobytes()
-
-    prev_command = (0xFF, 0)
-    repeat_counter = 0
-
-    def add_command(command: int, *args: list[int]):
-        if prev_command[0] == command:
-            repeat_counter += 1
-        elif 256 > repeat_counter > 4 and prev_command[0] != command:
-            # replace the past commands with one command and one repeat
-            pass
-        elif prev_command[0] != command:
-            repeat_counter = 0
-        prev_command[0] = (command, len(args))
 
     # what if we just abstract the X and Y away and work
     # in the decoder's native language instead?
@@ -78,36 +105,37 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
             if 256 > index - prev_index > 0:
                 if index - prev_index == 1:
                     # size opt: use INC instead
-                    commands.append(CMD_INC)
+                    add_command(CMD_INC)
                 else:
-                    commands.append(CMD_INC_BY)
-                    commands.append(index - prev_index)
+                    add_command(CMD_INC_BY, index - prev_index)
             elif index - prev_index != 0:
                 x = index % img.size[0]
                 y = (index - x) // img.size[0]
-                commands.append(CMD_MOVE)
-                commands += list(struct.pack("HH", x, y))
+                add_command(CMD_MOVE, *list(struct.pack("HH", x, y)))
             # change the colour
             # size opt: use INVERT if possible
             if bg_clr == 0xFF - clr:
-                commands.append(CMD_INVERT)
+                add_command(CMD_INVERT)
             else:
-                commands.append(CMD_DRAW)
-                commands.append(clr)
+                add_command(CMD_DRAW, clr)
             prev_index = index + 1  # because the draw operation shifted the index
 
     # TODO: optimization with FILL_DATA cmd
     # though i don't think i'll need it
-    return commands
+    return bytes(commands)
 
 
-def imgs_to_video(fp, path: str, frame_count: int, width: int, height: int, fps: int):
+def imgs_to_video(
+    fp, path: str, frame_count: int, width: int, height: int, fps: int, is_1bit=False
+):
     prev_frame = None
     fp.write(b"OMAVIDEO" + struct.pack("HHBH", width, height, fps, frame_count))
     for i in tqdm.tqdm(range(frame_count), total=frame_count, desc="processing frames"):
         frame = Image.open(f"{path}/{(i + 1):04d}.png")
+        if is_1bit:
+            frame = frame.convert("1")
         frame_data = img_to_frame(prev_frame, frame)
-        fp.write(struct.pack("I", len(frame_data)) + bytes(frame_data))
+        fp.write(struct.pack("I", len(frame_data)) + frame_data)
         prev_frame = frame
 
 
@@ -117,7 +145,8 @@ if __name__ == "__main__":
     frames = 6572
     res = 480, 360
     fps = 30
+    is_1bit = True
     """
     BAD_APPLE_FRAMES = 6572
     with open("test.bin", "wb+") as file:
-        imgs_to_video(file, "frames", BAD_APPLE_FRAMES, 480, 360, 30)
+        imgs_to_video(file, "frames", 30 * 30, 480, 360, 30, False)

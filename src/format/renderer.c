@@ -17,7 +17,7 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
     return;
 
   while (p < frame->commands_count) {
-    // (g_funcs->log)("format/renderer", "p=%d cmds[p]=%d", p, cmds[p]);
+    // (g_funcs->log)("format/renderer", "p=%d cmds[p]=%x", p, cmds[p]);
     switch (cmds[p]) {
     case CMD_MOVE: {
       uint16_t x = *((uint16_t *)&cmds[++p]);
@@ -32,7 +32,6 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
       break;
     }
     case CMD_INC: {
-      // techically not used, but we support it anyway
       idx++;
       break;
     }
@@ -59,8 +58,20 @@ void omavideo_renderer_render_frame(struct omavideo_video_frame *frame) {
       p += g_videoHeader->width * g_videoHeader->height;
       break;
     } */
+    case CMD_REPEAT: {
+      uint8_t size = cmds[++p];
+      // if N isn't 0
+      if (cmds[++p] != 0) {
+        // (g_funcs->log)("format/renderer", "repeating cmd (size=%d) %d times",
+        //                size, cmds[p]);
+        cmds[p]--;
+        // move p back
+        p -= 2 + size + 1; // +1 because we're incrementing p at the end
+      }
+      break;
+    }
     default:
-      (g_funcs->log)("format/renderer", "unknown command %d at p=%d", cmds[p],
+      (g_funcs->log)("format/renderer", "unknown command %x at p=%d", cmds[p],
                      p);
     }
     p++;
