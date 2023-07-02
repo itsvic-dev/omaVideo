@@ -37,17 +37,13 @@ if ("${PLATFORM}" STREQUAL "efi")
     target_link_options(${PROJECT_NAME} PUBLIC -target x86_64-unknown-windows -nostdlib -Wl,-entry:efi_main -Wl,-subsystem:efi_application -fuse-ld=lld-link)
     set(CMAKE_EXECUTABLE_SUFFIX .efi)
 
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
+    add_custom_target(fat.img
         COMMAND dd if=/dev/zero of=fat.img bs=1k count=524288
         COMMAND mkfs.vfat fat.img 524288
         COMMAND mmd -i fat.img ::/EFI
         COMMAND mmd -i fat.img ::/EFI/BOOT
         COMMAND mcopy -i fat.img ${PROJECT_NAME}.efi ::/EFI/BOOT/BOOTX64.EFI
-        COMMAND mcopy -i fat.img ${PROJECT_NAME}.pdb ::/EFI/BOOT/BOOTX64.PDB
         COMMAND mcopy -i fat.img ${CMAKE_CURRENT_SOURCE_DIR}/test.bin ::/VIDEO.BIN
-        BYPRODUCTS "fat.img"
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test.bin
+        DEPENDS ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/test.bin
         COMMENT "Making fat.img")
 endif()

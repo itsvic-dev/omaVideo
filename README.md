@@ -11,10 +11,10 @@ the most unconventional way to play back videos
 3. run `filesToBin.py`
 4. compile
    - for the Linux frontend, use `cmake .. -DPLATFORM=linux`. this requires Xlib
-   - for the EFI frontend, use `cmake .. -DPLATFORM=efi`. make sure you have ran `git submodule update --init` at least once
+   - for the EFI frontend, use `cmake .. -DPLATFORM=efi`. make sure you have ran `git submodule update --init` at least once. make the `fat.img` target too to get a 512MB FAT32 partition containing the test.bin and omaVideo.efi in the right places for boot.
 5. run
    - the Linux frontend will produce a `omaVideo` executable which looks for `video.bin` in the PWD
-   - the EFI frontend will produce a `omaVideo.efi` executable which looks for `VIDEO.BIN` in the filesystem root, and a `fat.img` containing `test.bin` from the root as `VIDEO.BIN` along with `omaVideo.efi` as `BOOTX64.EFI`
+   - the EFI frontend will produce a `omaVideo.efi` executable which looks for `VIDEO.BIN` in the filesystem root.
 
 ## known issues
 
