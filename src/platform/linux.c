@@ -106,7 +106,11 @@ void func_display_frame(uint8_t *framebuffer) {
   free(converted_fb);
 }
 
-void msleep(unsigned long msecs) { usleep(msecs * 1000); }
+void msleep(unsigned long msecs) {
+  if (msecs > 1000)
+    return;
+  usleep(msecs * 1000);
+}
 
 long long get_ms_time() {
   struct timeval tv;
