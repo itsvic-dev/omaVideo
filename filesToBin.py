@@ -35,6 +35,7 @@ CMD_REPEAT = 0x30
 # commands_length, 32-bit word
 # commands* - sequence of frame commands with a total size of commands_length
 
+from collections import Counter
 from PIL import Image
 import struct
 import tqdm
@@ -82,22 +83,25 @@ def img_to_frame(prev_frame: Image.Image | None, img: Image.Image):
     repeat_data = CmdRepeatData(commands)
     add_command = repeat_data.add_command  # helper shortcut
 
-    if not prev_frame:
-        # fill with black
-        # TODO: optimize by getting the most prelevant colour in the frame
-        add_command(CMD_FILL, 0)
-
     prev_index = 0
     prev_img_data = None
     if prev_frame:
         prev_img_data: bytes = prev_frame.convert("L").tobytes()
     img_data: bytes = img.convert("L").tobytes()
 
+    fallback_bg_color = 0
+
+    if not prev_frame:
+        # fill with most common colour
+        c = Counter(img_data)
+        fallback_bg_color = c.most_common(1)[0][0]
+        add_command(CMD_FILL, fallback_bg_color)
+
     # what if we just abstract the X and Y away and work
     # in the decoder's native language instead?
     # using X and Y only when necessary (MOVE cmd)
     for index in range(img.size[0] * img.size[1]):
-        bg_clr = 0 if not prev_frame else prev_img_data[index]
+        bg_clr = fallback_bg_color if not prev_frame else prev_img_data[index]
         clr = img_data[index]
         if clr != bg_clr:
             # move us to the right position and change the colour
